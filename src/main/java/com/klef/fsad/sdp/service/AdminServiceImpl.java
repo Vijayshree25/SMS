@@ -1,16 +1,18 @@
 package com.klef.fsad.sdp.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.klef.fsad.sdp.dto.CustomerDTO;
 import com.klef.fsad.sdp.entity.Admin;
 import com.klef.fsad.sdp.entity.Customer;
 import com.klef.fsad.sdp.entity.ServiceManager;
 import com.klef.fsad.sdp.repository.AdminRepository;
 import com.klef.fsad.sdp.repository.CustomerRepository;
-import com.klef.fsad.sdp.repository.ServiceManagerRepository;
+import com.klef.fsad.sdp.repository.ManagerRepository;
 
 @Service
 public class AdminServiceImpl implements AdminService
@@ -19,7 +21,7 @@ public class AdminServiceImpl implements AdminService
 	private AdminRepository adminRepository;
 
 	@Autowired
-	private ServiceManagerRepository managerRepository;
+	private ManagerRepository managerRepository;
 
 	@Autowired
 	private CustomerRepository customerRepository;
@@ -61,5 +63,38 @@ public class AdminServiceImpl implements AdminService
 		{
 			return false;
 		}
+	}
+
+	@Override
+	public CustomerDTO CustomerToCustomerDTO(Customer c) 
+	{
+		CustomerDTO dto=new CustomerDTO();
+		
+		dto.setId(c.getId());
+		dto.setName(c.getName());
+		dto.setGender(c.getGender());
+		dto.setLocation(c.getLocation());
+		
+		return dto;
+	}
+
+	@Override
+	public List<CustomerDTO> displayAllCustomersDTO() 
+	{
+		//List<Customer> customers=customerRepository.findAll();
+		
+		List<Customer> customers=viewallCustomers();
+		
+		return customers.stream()  //list into individual objects
+				.map(this::CustomerToCustomerDTO) //customer object to customerdto
+				.collect(Collectors.toList()); 	//will be connected into list 
+	}
+
+	@Override
+	public String deleteCustomer(int id) 
+	{
+		customerRepository.deleteById(id);
+		
+		return "Customer deleted successfully!!";
 	}
 }

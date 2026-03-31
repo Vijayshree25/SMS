@@ -23,4 +23,11 @@ public class CustomerServiceImpl implements CustomerService
 		return null;
 	}
 
+	@Override
+	public String customerRegistration(Customer customer) 
+	{
+		customerRepository.save(customer);//adding
+		return "Customer Registered successfully!!!";
+	}
+
 }
