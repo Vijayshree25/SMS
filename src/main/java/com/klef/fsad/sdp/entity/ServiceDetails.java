@@ -1,4 +1,5 @@
 package com.klef.fsad.sdp.entity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -6,10 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "service_details")
+//@Table(name = "servicedetails_table")
 public class ServiceDetails 
 {
     @Id
@@ -28,8 +28,8 @@ public class ServiceDetails
     @Column(nullable=false)
     private double baseprice;
     
-    @ManyToOne //(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
-    @JoinColumn(name = "manager_id") //foreign key column name
+    @ManyToOne
+    @JoinColumn(name = "manager_id") // foreign key column name
     private ServiceManager serviceManager;
 
 	public int getId() {
@@ -80,10 +80,4 @@ public class ServiceDetails
 		this.serviceManager = serviceManager;
 	}
 
-	@Override
-	public String toString() {
-		return "ServiceDetails [id=" + id + ", category=" + category + ", name=" + name + ", description=" + description
-				+ ", baseprice=" + baseprice + ", serviceManager=" + serviceManager + "]";
-	}
-
-}
+}	

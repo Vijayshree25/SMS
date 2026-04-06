@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.klef.fsad.sdp.dto.CustomerDTO;
 import com.klef.fsad.sdp.entity.Admin;
 import com.klef.fsad.sdp.entity.Customer;
 import com.klef.fsad.sdp.entity.ServiceManager;
+import com.klef.fsad.sdp.exception.ResourceNotFoundException;
 import com.klef.fsad.sdp.repository.AdminRepository;
 import com.klef.fsad.sdp.repository.CustomerRepository;
 import com.klef.fsad.sdp.repository.ManagerRepository;
@@ -19,56 +21,94 @@ public class AdminServiceImpl implements AdminService
 {
 	@Autowired
 	private AdminRepository adminRepository;
-
+	
 	@Autowired
 	private ManagerRepository managerRepository;
-
+	
 	@Autowired
 	private CustomerRepository customerRepository;
-
+	
+	@Autowired
+    private PasswordEncoder passwordEncoder;
+	
 	@Override
-	public Admin verifyAdminlogin(String username, String password) 
+	public Admin verifyAdminLogin(String username, String password) 
 	{
 		return adminRepository.findByUsernameAndPassword(username, password);
 	}
 
 	@Override
-	public String addServiceManager(ServiceManager sm) 
-	{
-		managerRepository.save(sm);
-		return "Manager added successfully!";
-	}
+    public String addServiceManager(ServiceManager sm) 
+	{    
+        // IMPORTANT: Encrypt password before saving
+        if (sm.getPassword() != null && !sm.getPassword().isEmpty()) 
+        {
+            String encodedPassword = passwordEncoder.encode(sm.getPassword());
+            sm.setPassword(encodedPassword);
+        }
+
+        managerRepository.save(sm);
+        return "Service Manager Added Successfully";
+    }
 
 	@Override
-	public List<ServiceManager> viewallServiceManagers() 
+	public List<ServiceManager> viewAllServiceManagers() 
 	{
 		return managerRepository.findAll();
 	}
 
+//	@Override
+//	public List<Customer> viewAllCustomers() 
+//	{
+//		return customerRepository.findAll();
+//	}
+	
 	@Override
-	public List<Customer> viewallCustomers() 
+	public List<Customer> viewAllCustomers() 
 	{
-		return customerRepository.findAll();
+	    List<Customer> customers = customerRepository.findAll();
+
+	    if (customers.isEmpty()) 
+	    {
+	        throw new ResourceNotFoundException("No Customers Found");
+	    }
+
+	    return customers;
 	}
 
+//	@Override
+//	public boolean deleteServiceManager(int id) 
+//	{
+//		if(managerRepository.existsById(id))
+//		{
+//			managerRepository.deleteById(id);
+//			return true;
+//		}
+//		return false;
+//	}
+	
 	@Override
-	public boolean deleteServiceManagerString(int id)
-	{  //findById 
-		if(managerRepository.existsById(id))   //if it is there then it will run the if loop
-		{
-			managerRepository.deleteById(id);
-			return true;
-		}
-		else 
-		{
-			return false;
-		}
+	public boolean deleteServiceManager(int id) 
+	{
+	    ServiceManager manager = managerRepository.findById(id)
+	            .orElseThrow(() -> new ResourceNotFoundException("Service Manager Not Found"));
+
+	    managerRepository.delete(manager);
+
+	    return true;
+	}
+	
+	@Override
+	public String deleteCustomer(int id) 
+	{
+		customerRepository.deleteById(id);
+		return "Customer Deleted Successfully";
 	}
 
 	@Override
 	public CustomerDTO CustomerToCustomerDTO(Customer c) 
 	{
-		CustomerDTO dto=new CustomerDTO();
+		CustomerDTO dto = new CustomerDTO();
 		
 		dto.setId(c.getId());
 		dto.setName(c.getName());
@@ -81,20 +121,15 @@ public class AdminServiceImpl implements AdminService
 	@Override
 	public List<CustomerDTO> displayAllCustomersDTO() 
 	{
-		//List<Customer> customers=customerRepository.findAll();
+		//List<Customer> customers = customerRepository.findAll();
 		
-		List<Customer> customers=viewallCustomers();
+		List<Customer> customers = viewAllCustomers();
 		
-		return customers.stream()  //list into individual objects
-				.map(this::CustomerToCustomerDTO) //customer object to customerdto
-				.collect(Collectors.toList()); 	//will be connected into list 
+		return customers.stream()
+                .map(this::CustomerToCustomerDTO)
+                .collect(Collectors.toList());
 	}
 
-	@Override
-	public String deleteCustomer(int id) 
-	{
-		customerRepository.deleteById(id);
-		
-		return "Customer deleted successfully!!";
-	}
+	
+
 }

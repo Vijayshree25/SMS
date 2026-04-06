@@ -9,22 +9,19 @@ import com.klef.fsad.sdp.entity.ServiceManager;
 
 public interface AdminService 
 {
-	public Admin verifyAdminlogin(String username,String password); //it is going to verify admin login
-	
-	public String addServiceManager(ServiceManager sm); 
-	
-	public List<ServiceManager> viewallServiceManagers();
-	
-	public boolean deleteServiceManagerString(int id);  //service manager id
-	
-	public String deleteCustomer(int id); //customer id
-	
-	public List<Customer> viewallCustomers();
-	
-	//DTO implementation
-	
-	public CustomerDTO CustomerToCustomerDTO(Customer c);
-	
-	public List<CustomerDTO> displayAllCustomersDTO();
-	
-}
+  public Admin verifyAdminLogin(String username,String password);
+  
+  public String addServiceManager(ServiceManager sm);
+  public List<ServiceManager> viewAllServiceManagers();
+  public boolean deleteServiceManager(int id); // service manager id
+  
+  public List<Customer> viewAllCustomers();
+  public String deleteCustomer(int id); // customer id
+  
+ 
+  // DTO implementation
+  public CustomerDTO CustomerToCustomerDTO(Customer c);
+  public List<CustomerDTO> displayAllCustomersDTO();
+  
+} 
+ 

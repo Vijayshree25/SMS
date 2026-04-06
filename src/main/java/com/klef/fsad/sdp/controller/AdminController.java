@@ -3,6 +3,7 @@ package com.klef.fsad.sdp.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,9 +12,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.klef.fsad.sdp.entity.Admin;
+import com.klef.fsad.sdp.dto.CustomerDTO;
 import com.klef.fsad.sdp.entity.Customer;
 import com.klef.fsad.sdp.entity.ServiceManager;
 import com.klef.fsad.sdp.service.AdminService;
@@ -32,12 +34,13 @@ public class AdminController
 		return "Full Stack SDP Project";
 	}
 	
+/*	
 	@PostMapping("/login")
 	public ResponseEntity<?> checkadminlogin(@RequestBody Admin admin)
 	{
 		try
 		{
-			Admin a = adminService.verifyAdminlogin(admin.getUsername(), admin.getPassword());
+			Admin a = adminService.verifyAdminLogin(admin.getUsername(), admin.getPassword());
 		
 		    if(a!=null)
 		    {
@@ -54,6 +57,7 @@ public class AdminController
 			return ResponseEntity.status(500).body("Internal Server Error");
 		}
 	}
+*/	
 	
 	@PostMapping("/addservicemanager")
 	public ResponseEntity<String> addservicemanager(@RequestBody ServiceManager manager)
@@ -74,10 +78,21 @@ public class AdminController
 	{
 	    try
 	    {
-	        List<ServiceManager> managers = adminService.viewallServiceManagers();
+	        List<ServiceManager> managers = adminService.viewAllServiceManagers();
 	        //return ResponseEntity.status(200).body(managers);
 	        
-	        return ResponseEntity.ok(managers);
+	        //return ResponseEntity.ok(managers);
+	        
+	        if(managers.size()>0)
+	        {
+	           return ResponseEntity.status(HttpStatus.OK).body(managers);   	
+	        }
+	        else
+	        {
+	        	//return ResponseEntity.status(HttpStatus.NO_CONTENT).body("No Data Found");
+	        	//return ResponseEntity.status(204).body("No Data Found");
+	        	return ResponseEntity.noContent().build();
+	        }
 	        
 	    }
 	    catch(Exception e)
@@ -86,13 +101,26 @@ public class AdminController
 	    }
 	}
 	
+	@DeleteMapping("/deletecustomer")
+	public ResponseEntity<String> deletecustomer(@RequestParam int id)
+	{
+	    try
+	    {
+	        String output = adminService.deleteCustomer(id);
+            return ResponseEntity.status(200).body(output);
+	    }
+	    catch(Exception e)
+	    {
+	        return ResponseEntity.status(500).body("Internal Server Error");
+	    }
+	}
 	
 	@DeleteMapping("/deleteservicemanager/{id}")
 	public ResponseEntity<String> deleteServiceManager(@PathVariable int id)
 	{
 	    try
 	    {
-	        boolean deleted = adminService.deleteServiceManagerString(id);
+	        boolean deleted = adminService.deleteServiceManager(id);
 
 	        if(deleted)
 	        {
@@ -105,17 +133,23 @@ public class AdminController
 	    }
 	    catch(Exception e)
 	    {
-	        return ResponseEntity.status(500).body("Internal Server Error");
+	        //return ResponseEntity.status(500).body("Internal Server Error");
+	    	return ResponseEntity.status(500).body(e.getMessage());
 	    }
 	}
+	
+	
 	
 	@GetMapping("/viewallcustomers")
 	public ResponseEntity<?> viewAllCustomers()
 	{
 	    try
 	    {
-	        List<Customer> customers = adminService.viewallCustomers();
+	        List<Customer> customers = adminService.viewAllCustomers();
+	        if(customers.size()>0)
 	        return ResponseEntity.ok(customers);
+	        else
+	        return ResponseEntity.noContent().build(); // 204 - no content
 	    }
 	    catch(Exception e)
 	    {
@@ -123,4 +157,19 @@ public class AdminController
 	    }
 	}
 	
+	
+	
+	@GetMapping("/displayallcustomersdto")
+	public ResponseEntity<?> displayallcustomersDTO()
+	{
+	    try
+	    {
+	        List<CustomerDTO> customers = adminService.displayAllCustomersDTO();
+	        return ResponseEntity.ok(customers);
+	    }
+	    catch(Exception e)
+	    {
+	        return ResponseEntity.status(500).body("Error Fetching Customers");
+	    }
+	}
 }
