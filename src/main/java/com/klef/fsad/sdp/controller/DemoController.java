@@ -27,7 +27,7 @@ public class DemoController
     }
 
     // Covers 400, 404, 401
-    @GetMapping("demo/{id}")
+    @GetMapping("/{id}")
     public String getData(@PathVariable int id) 
     {
         if (id < 0) 
